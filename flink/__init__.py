@@ -9,3 +9,5 @@ from flink.subdevices.flink_ppwa import FlinkPPWA
 from flink.subdevices.flink_fqd import FlinkFQD 
 from flink.subdevices.flink_uart import FlinkUART 
 from flink.subdevices.flink_wdt import FlinkWDT 
+from flink.subdevices.flink_analogin import FlinkAnalogIn 
+from flink.subdevices.flink_analogout import FlinkAnalogOut
