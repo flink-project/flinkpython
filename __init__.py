@@ -11,3 +11,6 @@ from flink.subdevices.flink_uart import FlinkUART
 from flink.subdevices.flink_wdt import FlinkWDT 
 from flink.subdevices.flink_analogin import FlinkAnalogIn 
 from flink.subdevices.flink_analogout import FlinkAnalogOut
+from flink.subdevices.flink_reflectiv_sensor import FlinkRefelectivSensor
+from flink.subdevices.flink_interrupt import FlinkInterrupt
+from flink.subdevices.flink_steppermotor import FlinkStepperMotor
