@@ -1,4 +1,3 @@
-from Systemtechnik import Flink
 import ctypes as ct
 import threading
 import flink
