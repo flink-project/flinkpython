@@ -274,7 +274,7 @@ class FlinkDevice:
 
     _instance = None
 
-    def __init__(self, devFileName: str = "/dev/flink0", libPath: str = "/usr/lib/libflink.so.1.0.2.8"):
+    def __init__(self, devFileName: str = "/dev/flink0", libPath: str = "/usr/lib/libflink.so.1.0.2.13"):
         """
         Creates a FlinkDevice. This is a Singleton! If the FlinkDevice already exists, it will 
         simply return the already existing instance.
@@ -303,7 +303,7 @@ class FlinkDevice:
         self.lib.flink_ioctl.argtypes = [ct.c_void_p, ct.c_int, ct.c_uint8, ct.c_void_p]
         self.lib.flink_ioctl.restype = ct.c_int
 
-    def __new__(cls, devFileName: str = "/dev/flink0", libPath: str = "/usr/lib/libflink.so.1.0.2.8"):
+    def __new__(cls, devFileName: str = "/dev/flink0", libPath: str = "/usr/lib/libflink.so.1.0.2.13"):
         """
         Do not call this manually. This will be called automatically
         """
