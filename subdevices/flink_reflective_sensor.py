@@ -66,9 +66,15 @@ class FlinkRefelectiveSensor(flink.FlinkSubDevice):
         dev.lib.flink_reflectivesensor_set_lower_hysterese.restype = ct.c_int
         dev.lib.flink_reflectivesensor_get_lower_hysterese.argtypes = [ct.c_void_p, ct.c_uint32, ct.POINTER(ct.c_uint32)]
         dev.lib.flink_reflectivesensor_get_lower_hysterese.restype = ct.c_int
+        self._RESOLUTION = self._getResolution()
 
-    def getResolution(self, channel: int) -> int:
+    ##################################################################################
+    # Internal methodes
+    ##################################################################################
+    def _getResolution(self) -> int:
         """
+        --> Internal method. NOT recomended to use this function directly!!! <--
+
         Reads the resolution of a single channel within a reflective sensor subdevice. 
         Channel number must be 0 <= channel < nof available channels.
         
@@ -81,10 +87,28 @@ class FlinkRefelectiveSensor(flink.FlinkSubDevice):
         Resolution
         """
         val = ct.c_uint32()
-        error = self.dev.lib.flink_reflectivesensor_get_resolution(self.subDev, channel, ct.byref(val))
+        error = self.dev.lib.flink_reflectivesensor_get_resolution(self.subDev, val)
         if error < 0:
             raise flink.FlinkException("Failed read the resolution of the reflective sensor", error, self.subDev)
         return int(val.value)
+    
+    ##################################################################################
+    # External methodes
+    ##################################################################################
+    def getResolution(self) -> int:
+        """
+        Reads the resolution of a single channel within a reflective sensor subdevice. 
+        Channel number must be 0 <= channel < nof available channels.
+        
+        Parameters
+        ----------
+        channel : channel number 
+        
+        Returns
+        -------
+        Resolution
+        """
+        return self._RESOLUTION
 
     def getValue(self, channel: int) -> int:
         """
@@ -100,28 +124,10 @@ class FlinkRefelectiveSensor(flink.FlinkSubDevice):
         Sensor value in digitised steps between 0 and Resolution
         """
         val = ct.c_uint32()
-        error = self.dev.lib.flink_dio_get_value(self.subDev, channel, ct.byref(val))
+        error = self.dev.lib.flink_reflectivesensor_get_value(self.subDev, channel, val)
         if error < 0:
             raise flink.FlinkException("Failed to read value from reflective sensor channel", error, self.subDev)
         return int(val.value)
-    
-    def getValueInVolt(self, channel: int, voltage: float = 3.3) -> float:
-        """
-        Reads the value of a single channel within a reflective sensor subdevice. 
-        Channel number must be 0 <= channel < nof available channels.
-        
-        Parameters
-        ----------
-        channel : channel number 
-        voltage : max Voltage [V] 
-        
-        Returns
-        -------
-        Sensor value in Volt [V]
-        """
-        resolution = self.getResolution(channel)
-        value = self.getValue(channel)
-        return (voltage/resolution)*value
 
     def setHysteresis(self, channel: int, upperBound: int, lowerBound: int) -> None:
         """
@@ -165,10 +171,10 @@ class FlinkRefelectiveSensor(flink.FlinkSubDevice):
 
         upperBound = ct.c_uint32()
         lowerBound = ct.c_uint32()
-        error = self.dev.lib.flink_reflectivesensor_set_upper_hysterese(self.subDev, channel, ct.byref(upperBound))
+        error = self.dev.lib.flink_reflectivesensor_get_upper_hysterese(self.subDev, channel, upperBound)
         if error < 0:
             raise flink.FlinkException("Failed to read hysteresis upper bound to reflective sensor channel", error, self.subDev)
-        error = self.dev.lib.flink_reflectivesensor_set_lower_hysterese(self.subDev, channel, ct.byref(lowerBound))
+        error = self.dev.lib.flink_reflectivesensor_get_lower_hysterese(self.subDev, channel, ct.byref(lowerBound))
         if error < 0:
             raise flink.FlinkException("Failed to read hysteresis lower bound to reflective sensor channel", error, self.subDev)
         return (int(lowerBound.value), int(upperBound.value))

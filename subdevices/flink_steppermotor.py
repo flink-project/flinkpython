@@ -128,7 +128,7 @@ class FlinkStepperMotor(flink.FlinkSubDevice):
         dev.lib.flink_steppermotor_global_step_reset.argtypes = [ct.c_void_p]
         dev.lib.flink_steppermotor_global_step_reset.restype = ct.c_int
 
-        self._BASE_CLOCK = self._getBaseClock()
+        self._BASE_CLOCK = self._getBaseclock()
 
     ##################################################################################
     # Internal methodes
@@ -153,7 +153,7 @@ class FlinkStepperMotor(flink.FlinkSubDevice):
         """
         error = self.dev.lib.flink_stepperMotor_set_prescaler_start(self.subDev, channel, prescaler)
         if error < 0:
-            raise flink.FlinkException("Failed set the presacaler start value: {prescaler} on channel: {channel}", error, self.subDev)
+            raise flink.FlinkException(f"Failed set the presacaler start value: {prescaler} on channel: {channel}", error, self.subDev)
 
     def _setSollSpeed(self, channel: int, prescaler: int) -> None:
         """
@@ -176,7 +176,7 @@ class FlinkStepperMotor(flink.FlinkSubDevice):
         """
         error = self.dev.lib.flink_stepperMotor_set_prescaler_top(self.subDev, channel, prescaler)
         if error < 0:
-            raise flink.FlinkException("Failed set the presacaler soll value: {prescaler} on channel: {channel}", error, self.subDev)
+            raise flink.FlinkException(f"Failed set the presacaler soll value: {prescaler} on channel: {channel}", error, self.subDev)
 
     def _setAcceleration(self, channel: int, acceleration: int) -> None:
         """
@@ -200,7 +200,7 @@ class FlinkStepperMotor(flink.FlinkSubDevice):
         if error < 0:
             raise flink.FlinkException("Failed set acceleration value: 0x{0:x} on channel: {1}".format(acceleration, channel), error, self.subDev)
     
-    def _getBaseClock(self) -> int:
+    def _getBaseclock(self) -> int:
         """
         --> Internal method. NOT recomended to use this function directly!!! <--
 
@@ -210,8 +210,8 @@ class FlinkStepperMotor(flink.FlinkSubDevice):
         -------
         The base clock in Hz
         """
-        clock = ct.c_uint32
-        error = self.dev.lib.flink_stepperMotor_get_baseclock(self.subDev, ct.byref(clock))
+        clock = ct.c_uint32()
+        error = self.dev.lib.flink_stepperMotor_get_baseclock(self.subDev, clock)
         if error < 0:
             raise flink.FlinkException("Failed to read the base clock", error, self.subDev)
         return int(clock.value)
@@ -300,10 +300,10 @@ class FlinkStepperMotor(flink.FlinkSubDevice):
         -------
         Motor start prescaler
         """
-        prescaler = ct.c_uint32
-        error = self.dev.lib.flink_stepperMotor_get_prescaler_start(self.subDev, channel, ct.byref(prescaler))
+        prescaler = ct.c_uint32()
+        error = self.dev.lib.flink_stepperMotor_get_prescaler_start(self.subDev, channel, prescaler)
         if error < 0:
-            raise flink.FlinkException("Failed to read start prescaler on channel: {channel}", error, self.subDev)
+            raise flink.FlinkException(f"Failed to read start prescaler on channel: {channel}", error, self.subDev)
         return int(prescaler.value)
     
     def _getSollPrescaler(self, channel: int) -> int:
@@ -321,10 +321,10 @@ class FlinkStepperMotor(flink.FlinkSubDevice):
         -------
         Motor soll speed prescaler
         """
-        prescaler = ct.c_uint32
-        error = self.dev.lib.flink_stepperMotor_get_prescaler_top(self.subDev, channel, ct.byref(prescaler))
+        prescaler = ct.c_uint32()
+        error = self.dev.lib.flink_stepperMotor_get_prescaler_top(self.subDev, channel, prescaler)
         if error < 0:
-            raise flink.FlinkException("Failed to read top prescaler on channel: {channel}", error, self.subDev)
+            raise flink.FlinkException(f"Failed to read top prescaler on channel: {channel}", error, self.subDev)
         return int(prescaler.value)
     
     def _getAcceleration(self, channel: int) -> int:
@@ -341,10 +341,10 @@ class FlinkStepperMotor(flink.FlinkSubDevice):
         -------
         acceleration raw
         """
-        acc = ct.c_uint32
-        error = self.dev.lib.flink_stepperMotor_get_acceleration(self.subDev, channel, ct.byref(acc))
+        acc = ct.c_uint32()
+        error = self.dev.lib.flink_stepperMotor_get_acceleration(self.subDev, channel, acc)
         if error < 0:
-            raise flink.FlinkException("Failed to read top prescaler on channel: {channel}", error, self.subDev)
+            raise flink.FlinkException(f"Failed to read top prescaler on channel: {channel}", error, self.subDev)
         return int(acc.value)
     
     def _setTwoBits(self, channel: int, numberToSet: int, maskBit_0: int, maskBit_1: int) -> None:
@@ -375,12 +375,12 @@ class FlinkStepperMotor(flink.FlinkSubDevice):
             error_0 = self.dev.lib.flink_stepperMotor_set_local_config_reg_bits_atomic(self.subDev, channel, maskBit_0 | maskBit_1)
             error_1 = 0
         else:
-            raise flink.FlinkException("Number: {numberToSet} must be 0 <= number < 4.", None, self.subDev)
+            raise flink.FlinkException(f"Number: {numberToSet} must be 0 <= number < 4.", None, self.subDev)
 
         if error_0 < 0 or error_1 < 0:
             error = error_0 if error_0 < 0 else error_1
             mask = maskBit_0 | maskBit_1
-            raise flink.FlinkException("Failed to (re)set two bits at mask: {mask} on channel: {channel}", error, self.subDev)
+            raise flink.FlinkException(f"Failed to (re)set two bits at mask: {mask} on channel: {channel}", error, self.subDev)
         
     def _setBit(self, channel: int, setBit: int, maskBit: int) -> None:
         """
@@ -403,9 +403,9 @@ class FlinkStepperMotor(flink.FlinkSubDevice):
         elif setBit == 1:
             error = self.dev.lib.flink_stepperMotor_set_local_config_reg_bits_atomic(self.subDev, channel, maskBit)
         else:
-            raise flink.FlinkException("Bit: {setBit} must be 0 <= number < 1.", None, self.subDev)
+            raise flink.FlinkException(f"Bit: {setBit} must be 0 <= number < 1.", None, self.subDev)
         if error < 0:
-            raise flink.FlinkException("Failed to (re)set bit at mask: {mask} on channel: {channel}", error, self.subDev)
+            raise flink.FlinkException(f"Failed to (re)set bit at mask: {maskBit} on channel: {channel}", error, self.subDev)
 
 
     ##################################################################################
@@ -488,7 +488,6 @@ class FlinkStepperMotor(flink.FlinkSubDevice):
         self._setAcceleration(channel=channel, acceleration=acc_raw) # do not change the order
         self._setSollSpeed(channel=channel, prescaler=pre_soll)
 
-
     def updateSpeeds(self, channel: int, startSpeed: int, sollSpeed: int, acceleration: int) -> None:
         """
         To change the different speeds if the motor is stopped.
@@ -516,7 +515,7 @@ class FlinkStepperMotor(flink.FlinkSubDevice):
         self._setSollSpeed(channel=channel, prescaler=pre_soll)
         self._setAcceleration(channel=channel, acceleration=acc_raw)
 
-    def getBaseClock(self) -> int:
+    def getBaseclock(self) -> int:
         """
         Returns the base clock of the underlying hardware.
         
@@ -531,7 +530,7 @@ class FlinkStepperMotor(flink.FlinkSubDevice):
         Writes the local configuration per channel.
         
         Unsave because if a bit should change its a "read modify write" operation (not atomic).
-        Use "setBitsInLocalConfiguration" or "ResetBitsInLocalConfiguration" instead or the 
+        Use "setBitsInLocalConfiguration" or "resetBitsInLocalConfiguration" instead or the 
         provided function to change a mode.
                 
         Parameters
@@ -545,7 +544,7 @@ class FlinkStepperMotor(flink.FlinkSubDevice):
         """
         error = self.dev.lib.flink_stepperMotor_set_local_config_reg(self.subDev, channel, config)
         if error < 0:
-            raise flink.FlinkException("Failed to write the local config: {config} on channel: {channel}", error, self.subDev)
+            raise flink.FlinkException(f"Failed to write the local config: {config} on channel: {channel}", error, self.subDev)
     
     def getLocalConfiguration(self, channel: int) -> int:
         """
@@ -559,10 +558,10 @@ class FlinkStepperMotor(flink.FlinkSubDevice):
         -------
         the configuration for the channel
         """
-        config = ct.c_uint32
-        error = self.dev.lib.flink_stepperMotor_get_local_config_reg(self.subDev, channel, ct.byref(config))
+        config = ct.c_uint32()
+        error = self.dev.lib.flink_stepperMotor_get_local_config_reg(self.subDev, channel, config)
         if error < 0:
-            raise flink.FlinkException("Failed to read the local config: {config} on channel: {channel}", error, self.subDev)
+            raise flink.FlinkException(f"Failed to read the local config: {config} on channel: {channel}", error, self.subDev)
         return int(config.value)
 
     def setBitsInLocalConfiguration(self, channel: int, bitsToSet: int) -> None:
@@ -587,9 +586,9 @@ class FlinkStepperMotor(flink.FlinkSubDevice):
         """
         error = self.dev.lib.flink_stepperMotor_set_local_config_reg_bits_atomic(self.subDev, channel, bitsToSet)
         if error < 0:
-            raise flink.FlinkException("Failed to set bits: {bitsToSet} on channel: {channel}", error, self.subDev)
+            raise flink.FlinkException(f"Failed to set bits: {bitsToSet} on channel: {channel}", error, self.subDev)
 
-    def ResetBitsInLocalConfiguration(self, channel: int, bitsToReset: int) -> None:
+    def resetBitsInLocalConfiguration(self, channel: int, bitsToReset: int) -> None:
         """
         Resets the corresponding bits in the local configuration (atomic).
         A zero has no effect.
@@ -611,7 +610,7 @@ class FlinkStepperMotor(flink.FlinkSubDevice):
         """
         error = self.dev.lib.flink_stepperMotor_reset_local_config_reg_bits_atomic(self.subDev, channel, bitsToReset)
         if error < 0:
-            raise flink.FlinkException("Failed to reset bits: {bitsToReset} on channel: {channel}", error, self.subDev)
+            raise flink.FlinkException(f"Failed to reset bits: {bitsToReset} on channel: {channel}", error, self.subDev)
         
     def getStartSpeed(self, channel: int) -> int:
         """
@@ -630,7 +629,7 @@ class FlinkStepperMotor(flink.FlinkSubDevice):
         try:
             return self._calculateSpeed(prescaler)
         except flink.FlinkException:
-            raise flink.FlinkException("Failed calculate start speed of channel: {channel}", channel, self.subDev)
+            raise flink.FlinkException(f"Failed calculate start speed of channel: {channel}", channel, self.subDev)
     
     def getSollSpeed(self, channel: int) -> int:
         """
@@ -649,7 +648,7 @@ class FlinkStepperMotor(flink.FlinkSubDevice):
         try:
             return self._calculateSpeed(prescaler)
         except flink.FlinkException:
-            raise flink.FlinkException("Failed calculate top speed of channel: {channel}", channel, self.subDev)
+            raise flink.FlinkException(f"Failed calculate top speed of channel: {channel}", channel, self.subDev)
     
     def getAcceleration(self, channel: int) -> int:
         """
@@ -669,7 +668,7 @@ class FlinkStepperMotor(flink.FlinkSubDevice):
         try:
             return self._calculateStepsFromAcceleration(prescaler_start = pre_start, prescaler_soll = pre_soll, acceleration = acc)
         except flink.FlinkException:
-            raise flink.FlinkException("Failed calculate acceleration of channel: {channel}", channel, self.subDev)
+            raise flink.FlinkException(f"Failed calculate acceleration of channel: {channel}", channel, self.subDev)
 
     def setStepsToDo(self, channel: int, stepps: int) -> None:
         """
@@ -690,7 +689,7 @@ class FlinkStepperMotor(flink.FlinkSubDevice):
         """
         error = self.dev.lib.flink_stepperMotor_set_steps_to_do(self.subDev, channel, stepps)
         if error < 0:
-            raise flink.FlinkException("Failed to write stepps: {stepps} on channel: {channel}", error, self.subDev)
+            raise flink.FlinkException(f"Failed to write stepps: {stepps} on channel: {channel}", error, self.subDev)
     
     def getStepsToDo(self, channel: int) -> int:
         """
@@ -704,10 +703,10 @@ class FlinkStepperMotor(flink.FlinkSubDevice):
         -------
         Steps to do
         """
-        stepps = ct.c_uint32
-        error = self.dev.lib.flink_stepperMotor_get_steps_to_do(self.subDev, channel, ct.byref(stepps))
+        stepps = ct.c_uint32()
+        error = self.dev.lib.flink_stepperMotor_get_steps_to_do(self.subDev, channel, stepps)
         if error < 0:
-            raise flink.FlinkException("Failed to read stepps to do on channel: {channel}", error, self.subDev)
+            raise flink.FlinkException(f"Failed to read stepps to do on channel: {channel}", error, self.subDev)
         return int(stepps.value)
 
     def getStepsHaveDone(self, channel: int) -> int:
@@ -722,10 +721,10 @@ class FlinkStepperMotor(flink.FlinkSubDevice):
         -------
         Steps have dome
         """
-        stepps = ct.c_uint32
-        error = self.dev.lib.flink_stepperMotor_get_steps_have_done(self.subDev, channel, ct.byref(stepps))
+        stepps = ct.c_uint32()
+        error = self.dev.lib.flink_stepperMotor_get_steps_have_done(self.subDev, channel, stepps)
         if error < 0:
-            raise flink.FlinkException("Failed to read stepps have done on channel: {channel}", error, self.subDev)
+            raise flink.FlinkException(f"Failed to read stepps have done on channel: {channel}", error, self.subDev)
         return int(stepps.value)
     
     def resetStepsGlobal(self) -> None:
@@ -758,7 +757,7 @@ class FlinkStepperMotor(flink.FlinkSubDevice):
         mask = ct.c_uint32(1<<self.LocalConfReg.RESET_STEPS.value)
         error = self.dev.lib.flink_stepperMotor_set_local_config_reg_bits_atomic(self.subDev, channel, mask)
         if error < 0:
-            raise flink.FlinkException("Failed to reset stepps have done on channel: {channel}", error, self.subDev)
+            raise flink.FlinkException(f"Failed to reset stepps have done on channel: {channel}", error, self.subDev)
 
     def setDirection(self, channel: int, direction: Direction) -> None:
         """
@@ -793,7 +792,7 @@ class FlinkStepperMotor(flink.FlinkSubDevice):
         -------
         Direction
         """
-        mask = ct.c_uint32(1<<self.LocalConfReg.DIRECTION.value)
+        mask = 1<<self.LocalConfReg.DIRECTION.value
         confReg = self.getLocalConfiguration(channel)
         if (((confReg & mask) >> self.LocalConfReg.DIRECTION.value) == self.Direction.CLOCKWISE.value):
             return self.Direction.CLOCKWISE
@@ -833,7 +832,7 @@ class FlinkStepperMotor(flink.FlinkSubDevice):
         -------
         Step mode
         """
-        mask = ct.c_uint32(1<<self.LocalConfReg.STEP_MODE.value)
+        mask = 1<<self.LocalConfReg.STEP_MODE.value
         confReg = self.getLocalConfiguration(channel)
         if (((confReg & mask) >> self.LocalConfReg.STEP_MODE.value) == self.StepMode.FULL_STEPS.value):
             return self.StepMode.FULL_STEPS
@@ -873,7 +872,7 @@ class FlinkStepperMotor(flink.FlinkSubDevice):
         -------
         Phase Mode
         """
-        mask = ct.c_uint32(1<<self.LocalConfReg.PHASE_MODE.value)
+        mask = 1<<self.LocalConfReg.PHASE_MODE.value
         confReg = self.getLocalConfiguration(channel)
         if (((confReg & mask) >> self.LocalConfReg.PHASE_MODE.value) == self.PhaseMode.ONE_PHASE.value):
             return self.PhaseMode.ONE_PHASE
@@ -895,8 +894,8 @@ class FlinkStepperMotor(flink.FlinkSubDevice):
         -------
         None
         """
-        maskRunBit_0 = ct.c_uint32(1<<self.LocalConfReg.RUN_MODE_0.value)
-        maskRunBit_1 = ct.c_uint32(1<<self.LocalConfReg.RUN_MODE_1.value)
+        maskRunBit_0 = 1<<self.LocalConfReg.RUN_MODE_0.value
+        maskRunBit_1 = 1<<self.LocalConfReg.RUN_MODE_1.value
         
         # Case distinction
         if runMode == self.RunMode.DISABLED:
@@ -906,9 +905,7 @@ class FlinkStepperMotor(flink.FlinkSubDevice):
         elif runMode == self.RunMode.FIXED_SPEED:
             self._setTwoBits(channel = channel, numberToSet = self.RunMode.FIXED_SPEED.value, maskBit_0 = maskRunBit_0, maskBit_1 = maskRunBit_1)
         else:
-            raise flink.FlinkException("This mode: {runMode.name} is reserved. DO NOT USE IT!!!", -1, self.subDev)
-        
-        
+            raise flink.FlinkException(f"This mode: {runMode.name} is reserved. DO NOT USE IT!!!", -1, self.subDev)
 
     def getRunMode(self, channel: int) -> RunMode:
         """
@@ -949,7 +946,7 @@ class FlinkStepperMotor(flink.FlinkSubDevice):
         mask = ct.c_uint32(1<<self.LocalConfReg.START.value)
         error = self.dev.lib.flink_stepperMotor_set_local_config_reg_bits_atomic(self.subDev, channel, mask)
         if error < 0:
-            raise flink.FlinkException("Failed to start motor on channel: {channel}", error, self.subDev)
+            raise flink.FlinkException(f"Failed to start motor on channel: {channel}", error, self.subDev)
 
     def stop(self, channel: int, acceleration: float = None) -> None:
         """
@@ -977,7 +974,7 @@ class FlinkStepperMotor(flink.FlinkSubDevice):
         mask = ct.c_uint32(1<<self.LocalConfReg.START.value)
         error = self.dev.lib.flink_stepperMotor_reset_local_config_reg_bits_atomic(self.subDev, channel, mask)
         if error < 0:
-            raise flink.FlinkException("Failed to stop motor on channel: {channel}", error, self.subDev)
+            raise flink.FlinkException(f"Failed to stop motor on channel: {channel}", error, self.subDev)
         
     def isMotorRunning(self, channel: int) -> bool:
         """
