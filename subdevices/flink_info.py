@@ -13,7 +13,7 @@ class FlinkInfo(flink.FlinkSubDevice):
 
     def __init__(self):
         dev = flink.FlinkDevice()
-        subDev = dev.getSubdeviceByType(flink.Definitions.INFO_INTERFACE_ID)
+        subDev = dev.getSubdeviceByType(flink.Definitions.INFO_DEVICE_ID)
         super().__init__(dev, subDev)
         dev.lib.flink_info_get_description.argtypes = [ct.c_void_p, ct.c_char_p]
         dev.lib.flink_info_get_description.restype = ct.c_int

@@ -12,7 +12,7 @@ class FlinkWDT(flink.FlinkSubDevice):
 
     def __init__(self):
         dev = flink.FlinkDevice()
-        subDev = dev.getSubdeviceByType(flink.Definitions.PWM_INTERFACE_ID)
+        subDev = dev.getSubdeviceByType(flink.Definitions.WD_INTERFACE_ID)
         super().__init__(dev, subDev)
         dev.lib.flink_wd_get_baseclock.argtypes = [ct.c_void_p, ct.POINTER(ct.c_uint32)]
         dev.lib.flink_wd_get_baseclock.restype = ct.c_int
@@ -36,7 +36,7 @@ class FlinkWDT(flink.FlinkSubDevice):
         if error < 0:
             raise flink.FlinkException("Failed to get baseclock from watchdog subdevice", error, self.subDev)
         return clk.value
-
+ 
     def getStatus(self) -> int:
         """
         Reads the status register and returns the state of the status bit within.
@@ -58,7 +58,7 @@ class FlinkWDT(flink.FlinkSubDevice):
         
         Parameters
         ----------
-        value : counter value 
+        value : counter value
         
         Returns
         -------
@@ -79,5 +79,3 @@ class FlinkWDT(flink.FlinkSubDevice):
         error = self.dev.lib.flink_wd_arm(self.subDev)
         if error < 0:
             raise flink.FlinkException("Faild to arm the watchdog timer", error, self.subDev)
-
-        

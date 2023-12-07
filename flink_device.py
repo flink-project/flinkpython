@@ -274,7 +274,7 @@ class FlinkDevice:
 
     _instance = None
 
-    def __init__(self, devFileName: str = "/dev/flink0", libPath: str = "/usr/lib/libflink.so.1.0.2.13"):
+    def __init__(self, devFileName: str = "/dev/flink0", libPath: str = "/usr/lib/libflink.so.1.0.2.33"):
         """
         Creates a FlinkDevice. This is a Singleton! If the FlinkDevice already exists, it will 
         simply return the already existing instance.
@@ -423,6 +423,8 @@ class FlinkDevice:
             subDev = self.getSubDeviceById(i)
             if self.lib.flink_subdevice_get_function(subDev) == type and self.lib.flink_subdevice_get_subfunction(subDev) == subType:
                 return subDev
+        errString = "Failed to get subdevice with type" + str(type) + " and subtype" + str(subType)
+        raise FlinkException(errString, -1)
         return # type: ignore
     
     #TODO: replace with id2str
@@ -433,9 +435,12 @@ class FlinkDevice:
         elif id == flink.Definitions.WD_INTERFACE_ID: return "WATCHDOG"
         elif id == flink.Definitions.UART_INTERFACE_ID: return "UART"
         elif id == flink.Definitions.PPWA_INTERFACE_ID: return "PPWA"
+        elif id == flink.Definitions.STEPPER_MOTOR_INTERFACE_ID: return "STEPPER MOTOR"
+        elif id == flink.Definitions.SENSOR_INTERFACE_ID: return "SENSOR"
+        elif id == flink.Definitions.IRQ_MULTIPLEXER_INTERFACE_ID: return "IRQ MULTIPLEXER"
         elif id == flink.Definitions.ANALOG_INPUT_INTERFACE_ID: return "ANALOG INPUT"
         elif id == flink.Definitions.ANALOG_OUTPUT_INTERFACE_ID: return "ANALOG OUTPUT"
-        elif id == flink.Definitions.INFO_INTERFACE_ID: return "INFO DEVICE"
+        elif id == flink.Definitions.INFO_DEVICE_ID: return "INFO DEVICE"
         else: return str(id)
 	
     def lsflink(self):

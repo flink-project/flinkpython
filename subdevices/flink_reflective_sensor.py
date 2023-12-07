@@ -28,15 +28,15 @@ __author__  = "Patrick Good, Urs Graf"
 __license__ = "http://www.apache.org/licenses/LICENSE-2.0"
 __version__ = "1.0"
 
-class FlinkRefelectiveSensor(flink.FlinkSubDevice):
+class FlinkReflectiveSensor(flink.FlinkSubDevice):
     """
     The flinkreflectivesensor subdevice realizes an reflective sensor within a flink device.
-    It offers several channels. Each channel has it's own sensor value and a hysteresis for IRQ generating.
+    It offers several channels. Each channel has it's own sensor value and a level for IRQ generating.
     
     For IRQ:
-        - Each channel has two IRQ lines. one line when the sensor value exceeds the upper bound of the 
-          hysteresis and one line when the sensor value goes below the lower bound of the hysteresis.
-        - The configuration of the histeresis is done through this module, but to connect the IRQ to a 
+        - Each channel has two IRQ lines. one line when the sensor value exceeds the upper level
+          and one line when the sensor value decreases below the lower level.
+        - The configuration of the levels is done here, but to configure the IRQ with a  
           function use the FlinkInterrupt class.
     """
 
@@ -52,20 +52,20 @@ class FlinkRefelectiveSensor(flink.FlinkSubDevice):
         the object
         """
         dev = flink.FlinkDevice()
-        subDev = dev.getSubdeviceByType(flink.Definitions.SENSOR_INTERFACE_ID, flink.Definitions.REFELCTIV_SENSOR_SUBTYP)
+        subDev = dev.getSubdeviceByType(flink.Definitions.SENSOR_INTERFACE_ID, flink.Definitions.REFLECTIVE_SENSOR_SUBTYP)
         super().__init__(dev, subDev)
         dev.lib.flink_reflectivesensor_get_resolution.argtypes = [ct.c_void_p, ct.POINTER(ct.c_uint32)]
         dev.lib.flink_reflectivesensor_get_resolution.restype = ct.c_int
         dev.lib.flink_reflectivesensor_get_value.argtypes = [ct.c_void_p, ct.c_uint32, ct.POINTER(ct.c_uint32)]
         dev.lib.flink_reflectivesensor_get_value.restype = ct.c_int  
-        dev.lib.flink_reflectivesensor_set_upper_hysterese.argtypes = [ct.c_void_p, ct.c_uint32, ct.c_uint32]
-        dev.lib.flink_reflectivesensor_set_upper_hysterese.restype = ct.c_int
-        dev.lib.flink_reflectivesensor_get_upper_hysterese.argtypes = [ct.c_void_p, ct.c_uint32, ct.POINTER(ct.c_uint32)]
-        dev.lib.flink_reflectivesensor_get_upper_hysterese.restype = ct.c_int
-        dev.lib.flink_reflectivesensor_set_lower_hysterese.argtypes = [ct.c_void_p, ct.c_uint32, ct.c_uint32]
-        dev.lib.flink_reflectivesensor_set_lower_hysterese.restype = ct.c_int
-        dev.lib.flink_reflectivesensor_get_lower_hysterese.argtypes = [ct.c_void_p, ct.c_uint32, ct.POINTER(ct.c_uint32)]
-        dev.lib.flink_reflectivesensor_get_lower_hysterese.restype = ct.c_int
+        dev.lib.flink_reflectivesensor_set_upper_level_int.argtypes = [ct.c_void_p, ct.c_uint32, ct.c_uint32]
+        dev.lib.flink_reflectivesensor_set_upper_level_int.restype = ct.c_int
+        dev.lib.flink_reflectivesensor_get_upper_level_int.argtypes = [ct.c_void_p, ct.c_uint32, ct.POINTER(ct.c_uint32)]
+        dev.lib.flink_reflectivesensor_get_upper_level_int.restype = ct.c_int
+        dev.lib.flink_reflectivesensor_set_lower_level_int.argtypes = [ct.c_void_p, ct.c_uint32, ct.c_uint32]
+        dev.lib.flink_reflectivesensor_set_lower_level_int.restype = ct.c_int
+        dev.lib.flink_reflectivesensor_get_lower_level_int.argtypes = [ct.c_void_p, ct.c_uint32, ct.POINTER(ct.c_uint32)]
+        dev.lib.flink_reflectivesensor_get_lower_level_int.restype = ct.c_int
         self._RESOLUTION = self._getResolution()
 
     ##################################################################################
@@ -129,34 +129,34 @@ class FlinkRefelectiveSensor(flink.FlinkSubDevice):
             raise flink.FlinkException("Failed to read value from reflective sensor channel", error, self.subDev)
         return int(val.value)
 
-    def setHysteresis(self, channel: int, upperBound: int, lowerBound: int) -> None:
+    def setLevel(self, channel: int, upperBound: int, lowerBound: int) -> None:
         """
-        Writes the hysteresis of a single channel within a reflective sensor subdevice. 
+        Writes the upper and lower level of a single channel. 
         Channel number must be 0 <= channel < nof available channels.
-        Bounds must be 0 <= upperBound,lowerBound <= resolution
+        Bounds must be 0 <= upperBound, lowerBound <= resolution
         
         Parameters
         ----------
         channel    : channel number
-        upperBound : The upper limit of the hysteresis for the IRQ
-        lowerBound : The lower limit of the hysteresis for the IRQ
+        upperBound : The upper level
+        lowerBound : The lower level
         
         Returns
         -------
         None
         """
-        error = self.dev.lib.flink_reflectivesensor_set_upper_hysterese(self.subDev, channel, upperBound)
+        error = self.dev.lib.flink_reflectivesensor_set_upper_level_int(self.subDev, channel, upperBound)
         if error < 0:
-            raise flink.FlinkException("Failed to write hysteresis upper bound to reflective sensor channel", error, self.subDev)
-        error = self.dev.lib.flink_reflectivesensor_set_lower_hysterese(self.subDev, channel, lowerBound)
+            raise flink.FlinkException("Failed to write upper level to channel", error, self.subDev)
+        error = self.dev.lib.flink_reflectivesensor_set_lower_level_int(self.subDev, channel, lowerBound)
         if error < 0:
-            raise flink.FlinkException("Failed to write hysteresis lower bound to reflective sensor channel", error, self.subDev)
+            raise flink.FlinkException("Failed to write lower level to channel", error, self.subDev)
         
-    def getHysteresis(self, channel: int) -> Tuple[int]:
+    def getLevel(self, channel: int) -> Tuple[int, int]:
         """
-        Writes the hysteresis of a single channel within a reflective sensor subdevice. 
+        Reads the upper and lower level of a single channel. 
         Channel number must be 0 <= channel < nof available channels.
-        Bounds must be 0 <= upperBound,lowerBound <= resolution
+        Bounds must be 0 <= upperBound, lowerBound <= resolution
         
         Parameters
         ----------
@@ -165,17 +165,17 @@ class FlinkRefelectiveSensor(flink.FlinkSubDevice):
         Returns
         -------
         (lowerBound, upperBound)
-        lowerBound : The lower limit of the hysteresis for the IRQ
-        upperBound : The upper limit of the hysteresis for the IRQ
+        lowerBound : The lower level
+        upperBound : The upper level
         """
 
         upperBound = ct.c_uint32()
         lowerBound = ct.c_uint32()
-        error = self.dev.lib.flink_reflectivesensor_get_upper_hysterese(self.subDev, channel, upperBound)
+        error = self.dev.lib.flink_reflectivesensor_get_upper_level_int(self.subDev, channel, upperBound)
         if error < 0:
-            raise flink.FlinkException("Failed to read hysteresis upper bound to reflective sensor channel", error, self.subDev)
-        error = self.dev.lib.flink_reflectivesensor_get_lower_hysterese(self.subDev, channel, ct.byref(lowerBound))
+            raise flink.FlinkException("Failed to read upper level of channel", error, self.subDev)
+        error = self.dev.lib.flink_reflectivesensor_get_lower_level_int(self.subDev, channel, ct.byref(lowerBound))
         if error < 0:
-            raise flink.FlinkException("Failed to read hysteresis lower bound to reflective sensor channel", error, self.subDev)
+            raise flink.FlinkException("Failed to read lower level of channel", error, self.subDev)
         return (int(lowerBound.value), int(upperBound.value))
         

@@ -17,9 +17,9 @@
 #                                                      
 #
 
-__author__ = Urs Graf, Patrick Good
-__license__ = http://www.apache.org/licenses/LICENSE-2.0
-__version__ = 1.0
+__author__ = "Urs Graf, Patrick Good"
+__license__ = "http://www.apache.org/licenses/LICENSE-2.0"
+__version__ = "1.0"
 
 REGISTER_WIDTH		     = 4     # in byte
 REGISTER_WIDTH_BIT	     = REGISTER_WIDTH * 8
