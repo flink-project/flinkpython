@@ -1,25 +1,3 @@
-"""
-*******************************************************************************************
-*    ____   _____ _______            _________  _____     _____  ____  _____  ___  ____   *
-*   / __ \ / ____|__   __|          |_   ___  ||_   _|   |_   _||_   \|_   _||_  ||_  _|  *
-*  | |  | | (___    | |    _______    | |_  \_|  | |       | |    |   \ | |    | |_/ /    *
-*  | |  | |\___ \   | |   |_______|   |  _|      | |   _   | |    | |\ \| |    |  __'.    *
-*  | |__| |____) |  | |              _| |_      _| |__/ | _| |_  _| |_\   |_  _| |  \ \_  *
-*   \____/|_____/   |_|             |_____|    |________||_____||_____|\____||____||____| *
-*                                                                                         *
-*******************************************************************************************
-*                                                                                         *
-*                      Python class for reflective sensor subdevice                       *
-*                                                                                         *
-*******************************************************************************************
-
-File: flink_reflective_sensor.py
-
-Changelog
-When        Who         Version     What
-05.11.23    P.Good      1.0         Initial version
-"""
-
 import flink
 import ctypes as ct
 from typing import Tuple
@@ -30,7 +8,7 @@ __version__ = "1.0"
 
 class FlinkReflectiveSensor(flink.FlinkSubDevice):
     """
-    The flinkreflectivesensor subdevice realizes an reflective sensor within a flink device.
+    The flink reflectivesensor subdevice realizes an reflective sensor within a flink device.
     It offers several channels. Each channel has it's own sensor value and a level for IRQ generating.
     
     For IRQ:
@@ -73,8 +51,6 @@ class FlinkReflectiveSensor(flink.FlinkSubDevice):
     ##################################################################################
     def _getResolution(self) -> int:
         """
-        --> Internal method. NOT recomended to use this function directly!!! <--
-
         Reads the resolution of a single channel within a reflective sensor subdevice. 
         Channel number must be 0 <= channel < nof available channels.
         
