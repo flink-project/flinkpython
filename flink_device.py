@@ -303,7 +303,7 @@ class FlinkDevice:
         self.lib.flink_ioctl.argtypes = [ct.c_void_p, ct.c_int, ct.c_uint8, ct.c_void_p]
         self.lib.flink_ioctl.restype = ct.c_int
 
-    def __new__(cls, devFileName: str = "/dev/flink0", libPath: str = "/usr/lib/libflink.so.1.0.2.13"):
+    def __new__(cls):
         """
         Do not call this manually. This will be called automatically
         """
