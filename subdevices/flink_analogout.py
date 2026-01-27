@@ -61,7 +61,7 @@ class FlinkAnalogOut(flink.FlinkSubDevice):
         -------
         None
         """
-        error = self.dev.lib.flink_analog_out_set_value(self.subDev, channel, ct.byref(val))
+        error = self.dev.lib.flink_analog_out_set_value(self.subDev, channel, value)
         if error < 0:
             raise flink.FlinkException("Failed to set value on dac subdevice", error, self.subDev)
             
